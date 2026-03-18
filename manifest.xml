@@ -6,7 +6,7 @@
   xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
   xsi:type="MailApp">
 
-  <Id>66D7C708-6A8A-4A2C-9CD1-47F94BF2A290</Id>
+  <Id>0AFF3A45-3738-4220-A3E1-55AB1E3CA605</Id>
   <Version>1.0.0.0</Version>
   <ProviderName>Fujilogi</ProviderName>
   <DefaultLocale>ja-JP</DefaultLocale>
@@ -48,15 +48,25 @@
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
 
       <Requirements>
-        <bt:Sets DefaultMinVersion="1.1">
+        <bt:Sets DefaultMinVersion="1.12">
           <bt:Set Name="Mailbox"/>
         </bt:Sets>
       </Requirements>
 
       <Hosts>
         <Host xsi:type="MailHost">
+
+          <!-- Smart Alerts 用ランタイム -->
+          <Runtimes>
+            <Runtime resid="launchEventHtml" lifetime="short">
+              <Override type="javascript" resid="launchEventJs"/>
+            </Runtime>
+            <Runtime resid="tpUrl" lifetime="short"/>
+          </Runtimes>
+
           <DesktopFormFactor>
 
+            <!-- リボンボタン（手動で開く用） -->
             <ExtensionPoint xsi:type="MessageComposeCommandSurface">
               <OfficeTab id="TabDefault">
                 <Group id="FujilogiGrp">
@@ -80,6 +90,16 @@
               </OfficeTab>
             </ExtensionPoint>
 
+            <!-- Smart Alerts: 送信時に自動起動 -->
+            <ExtensionPoint xsi:type="LaunchEvent">
+              <LaunchEvents>
+                <LaunchEvent Type="OnMessageSend"
+                             FunctionName="onMessageSend"
+                             SendMode="PromptUser"/>
+              </LaunchEvents>
+              <SourceLocation resid="launchEventHtml"/>
+            </ExtensionPoint>
+
           </DesktopFormFactor>
         </Host>
       </Hosts>
@@ -92,6 +112,8 @@
         </bt:Images>
         <bt:Urls>
           <bt:Url id="tpUrl" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/taskpane.html"/>
+          <bt:Url id="launchEventHtml" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/launchevent.html"/>
+          <bt:Url id="launchEventJs" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/launchevent.js"/>
         </bt:Urls>
         <bt:ShortStrings>
           <bt:String id="grpLabel" DefaultValue="誤送信対策"/>
