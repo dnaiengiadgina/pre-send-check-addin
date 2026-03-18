@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
+  xsi:type="MailApp">
+
+  <Id>66D7C708-6A8A-4A2C-9CD1-47F94BF2A290</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Fujilogi</ProviderName>
+  <DefaultLocale>ja-JP</DefaultLocale>
+  <DisplayName DefaultValue="送信確認"/>
+  <Description DefaultValue="メール送信前に宛先と添付ファイルを確認します。"/>
+  <IconUrl DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/assets/icon-128.png"/>
+  <SupportUrl DefaultValue="https://fujilogi.co.jp"/>
+
+  <AppDomains>
+    <AppDomain>https://dnaiengiadgina.github.io</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.1"/>
+    </Sets>
+  </Requirements>
+
+  <FormSettings>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/taskpane.html"/>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+
+  <Permissions>ReadWriteItem</Permissions>
+
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit"/>
+  </Rule>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
+
+      <Requirements>
+        <bt:Sets DefaultMinVersion="1.1">
+          <bt:Set Name="Mailbox"/>
+        </bt:Sets>
+      </Requirements>
+
+      <Hosts>
+        <Host xsi:type="MailHost">
+          <DesktopFormFactor>
+
+            <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+              <OfficeTab id="TabDefault">
+                <Group id="FujilogiGrp">
+                  <Label resid="grpLabel"/>
+                  <Control xsi:type="Button" id="FujilogiBtn">
+                    <Label resid="btnLabel"/>
+                    <Supertip>
+                      <Title resid="btnLabel"/>
+                      <Description resid="btnDesc"/>
+                    </Supertip>
+                    <Icon>
+                      <bt:Image size="16" resid="icon16"/>
+                      <bt:Image size="32" resid="icon32"/>
+                      <bt:Image size="80" resid="icon80"/>
+                    </Icon>
+                    <Action xsi:type="ShowTaskpane">
+                      <SourceLocation resid="tpUrl"/>
+                    </Action>
+                  </Control>
+                </Group>
+              </OfficeTab>
+            </ExtensionPoint>
+
+          </DesktopFormFactor>
+        </Host>
+      </Hosts>
+
+      <Resources>
+        <bt:Images>
+          <bt:Image id="icon16" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/assets/icon-16.png"/>
+          <bt:Image id="icon32" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/assets/icon-32.png"/>
+          <bt:Image id="icon80" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/assets/icon-80.png"/>
+        </bt:Images>
+        <bt:Urls>
+          <bt:Url id="tpUrl" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/taskpane.html"/>
+        </bt:Urls>
+        <bt:ShortStrings>
+          <bt:String id="grpLabel" DefaultValue="誤送信対策"/>
+          <bt:String id="btnLabel" DefaultValue="送信確認"/>
+        </bt:ShortStrings>
+        <bt:LongStrings>
+          <bt:String id="btnDesc" DefaultValue="メール送信前に宛先と添付ファイルを確認します。"/>
+        </bt:LongStrings>
+      </Resources>
+
+    </VersionOverrides>
+  </VersionOverrides>
+
+</OfficeApp>

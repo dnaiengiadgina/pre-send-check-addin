@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>送信確認</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 14px;
+      background: #f3f2f1;
+      color: #323130;
+      padding: 12px;
+      padding-bottom: 60px;
+    }
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #0078d4;
+      border-bottom: 2px solid #0078d4;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+      font-size: 11px;
+      font-weight: 600;
+      color: #605e5c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .rcpt {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+      word-break: break-all;
+    }
+    .rcpt:last-child { border-bottom: none; }
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 8px;
+      color: #fff;
+      min-width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .to  { background: #0078d4; }
+    .cc  { background: #107c10; }
+    .bcc { background: #8764b8; }
+    .ext { background: #d83b01; }
+    .warn {
+      color: #d83b01;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    .none { color: #a19f9d; font-style: italic; font-size: 13px; }
+    .chk { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f0f0f0; }
+    .chk:last-child { border-bottom: none; }
+    .chk input { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+    .chk label  { cursor: pointer; font-size: 13px; }
+    #statusBar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .ok   { background: #dff6dd; color: #107c10; }
+    .wait { background: #fff4ce; color: #7e5700; }
+    #loading { text-align: center; color: #605e5c; padding: 30px 0; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+  <h2>📧 メール送信確認</h2>
+
+  <div id="loading">読み込み中...</div>
+
+  <div id="main" style="display:none">
+
+    <div class="card">
+      <h3>📋 件名</h3>
+      <div id="subjectArea"></div>
+    </div>
+
+    <div class="card">
+      <h3>👤 宛先</h3>
+      <div id="rcptArea"></div>
+    </div>
+
+    <div class="card">
+      <h3>📎 添付ファイル</h3>
+      <div id="attachArea"></div>
+    </div>
+
+    <div class="card">
+      <h3>✅ 送信前チェック</h3>
+      <div class="chk">
+        <input type="checkbox" id="c1" onchange="updateStatus()">
+        <label for="c1">宛先（To / CC / BCC）を確認した</label>
+      </div>
+      <div class="chk">
+        <input type="checkbox" id="c2" onchange="updateStatus()">
+        <label for="c2">件名を確認した</label>
+      </div>
+      <div class="chk">
+        <input type="checkbox" id="c3" onchange="updateStatus()">
+        <label for="c3">本文・添付ファイルを確認した</label>
+      </div>
+      <div class="chk">
+        <input type="checkbox" id="c4" onchange="updateStatus()">
+        <label for="c4">社外宛先への送信に問題はない</label>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="statusBar" class="wait">確認後、送信してください</div>
+
+  <script>
+    var DOMAIN = 'fujilogi.co.jp';
+
+    function esc(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function getRecipients(prop) {
+      return new Promise(function(resolve) {
+        prop.getAsync(function(r) {
+          resolve(r.status === Office.AsyncResultStatus.Succeeded ? r.value : []);
+        });
+      });
+    }
+
+    Office.onReady(function(info) {
+      if (info.host !== Office.HostType.Outlook) {
+        document.getElementById('loading').textContent = 'Outlook 以外では動作しません。';
+        return;
+      }
+
+      var item = Office.context.mailbox.item;
+
+      // 件名取得
+      item.subject.getAsync(function(r) {
+        var el = document.getElementById('subjectArea');
+        var val = r.status === Office.AsyncResultStatus.Succeeded ? r.value : '';
+        if (!val || !val.trim()) {
+          el.innerHTML = '<div class="warn">⚠️ 件名が未入力です</div>';
+        } else {
+          el.innerHTML = '<div style="font-size:13px">' + esc(val) + '</div>';
+        }
+      });
+
+      // 宛先取得
+      Promise.all([
+        getRecipients(item.to),
+        getRecipients(item.cc),
+        getRecipients(item.bcc)
+      ]).then(function(results) {
+        var to = results[0], cc = results[1], bcc = results[2];
+        var el = document.getElementById('rcptArea');
+        var html = '';
+        var hasExt = false;
+
+        function renderList(list, label, cls) {
+          list.forEach(function(r) {
+            var isExt = r.emailAddress && !r.emailAddress.toLowerCase().endsWith('@' + DOMAIN);
+            if (isExt) hasExt = true;
+            html += '<div class="rcpt"><span class="badge ' + cls + '">' + label + '</span>';
+            if (isExt) html += '<span class="badge ext">社外</span>';
+            html += '<span>' + esc(r.emailAddress) + '</span></div>';
+          });
+        }
+
+        renderList(to,  'To',  'to');
+        renderList(cc,  'CC',  'cc');
+        renderList(bcc, 'BCC', 'bcc');
+
+        if (!html) {
+          el.innerHTML = '<div class="warn">⚠️ 宛先が設定されていません</div>';
+        } else {
+          el.innerHTML = html;
+          if (hasExt) {
+            el.innerHTML += '<div class="warn">⚠️ 社外ドメインへの送信が含まれています</div>';
+          }
+        }
+      });
+
+      // 添付ファイル取得
+      item.getAttachmentsAsync(function(r) {
+        var el = document.getElementById('attachArea');
+        if (r.status !== Office.AsyncResultStatus.Succeeded || r.value.length === 0) {
+          el.innerHTML = '<div class="none">添付ファイルなし</div>';
+        } else {
+          el.innerHTML = r.value.map(function(a) {
+            return '<div style="font-size:13px;padding:3px 0;border-bottom:1px solid #f0f0f0">📄 ' + esc(a.name) + '</div>';
+          }).join('');
+        }
+      });
+
+      // ローディング非表示
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+    });
+
+    function updateStatus() {
+      var all = ['c1','c2','c3','c4'].every(function(id) {
+        return document.getElementById(id).checked;
+      });
+      var bar = document.getElementById('statusBar');
+      if (all) {
+        bar.textContent = '✅ チェック完了。送信できます。';
+        bar.className = 'ok';
+      } else {
+        bar.textContent = '⚠️ すべての項目にチェックを入れてください';
+        bar.className = 'wait';
+      }
+    }
+  </script>
+
+</body>
+</html>
