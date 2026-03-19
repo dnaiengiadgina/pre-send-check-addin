@@ -17,15 +17,13 @@ function onMessageSend(event) {
     getRecipients(item.to),
     getRecipients(item.cc),
     getRecipients(item.bcc),
-    getBody(item),
     getAttachments(item)
   ]).then(function(results) {
     var subject     = results[0];
     var to          = results[1];
     var cc          = results[2];
     var bcc         = results[3];
-    var body        = results[4];
-    var attachments = results[5];
+    var attachments = results[4];
 
     var warnings = [];
 
@@ -42,13 +40,6 @@ function onMessageSend(event) {
     if (extList.length > 0) {
       var emails = extList.map(function(r) { return r.emailAddress; }).join(', ');
       warnings.push('・社外への送信が含まれています:\n  ' + emails);
-    }
-
-    // ③ 添付忘れチェック
-    var keywords = ['添付', '別紙', 'ファイルを送', 'attached', 'attachment'];
-    var hasKeyword = keywords.some(function(kw) { return body.indexOf(kw) !== -1; });
-    if (hasKeyword && attachments.length === 0) {
-      warnings.push('・本文に添付を示す言葉がありますが、添付ファイルがありません。');
     }
 
     if (warnings.length > 0) {
@@ -87,13 +78,6 @@ function getRecipients(prop) {
   });
 }
 
-function getBody(item) {
-  return new Promise(function(resolve) {
-    item.body.getAsync(Office.CoercionType.Text, function(r) {
-      resolve(r.status === Office.AsyncResultStatus.Succeeded ? r.value : '');
-    });
-  });
-}
 
 function getAttachments(item) {
   return new Promise(function(resolve) {
