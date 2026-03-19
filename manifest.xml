@@ -6,12 +6,12 @@
   xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
   xsi:type="MailApp">
 
-  <Id>0AFF3A45-3738-4220-A3E1-55AB1E3CA605</Id>
+  <Id>3ACD721D-80B1-4A15-AE5C-5669A20A6891</Id>
   <Version>1.0.0.0</Version>
   <ProviderName>Fujilogi</ProviderName>
   <DefaultLocale>ja-JP</DefaultLocale>
   <DisplayName DefaultValue="送信確認"/>
-  <Description DefaultValue="メール送信前に宛先と添付ファイルを確認します。"/>
+  <Description DefaultValue="メール送信前に社外宛先と件名を自動チェックします。"/>
   <IconUrl DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://fujilogi.co.jp"/>
@@ -33,12 +33,12 @@
   <FormSettings>
     <Form xsi:type="ItemEdit">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/taskpane.html"/>
+        <SourceLocation DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/launchevent.html"/>
       </DesktopSettings>
     </Form>
   </FormSettings>
 
-  <Permissions>ReadWriteItem</Permissions>
+  <Permissions>ReadItem</Permissions>
 
   <Rule xsi:type="RuleCollection" Mode="Or">
     <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit"/>
@@ -56,41 +56,14 @@
       <Hosts>
         <Host xsi:type="MailHost">
 
-          <!-- Smart Alerts 用ランタイム -->
           <Runtimes>
             <Runtime resid="launchEventHtml" lifetime="short">
               <Override type="javascript" resid="launchEventJs"/>
             </Runtime>
-            <Runtime resid="tpUrl" lifetime="short"/>
           </Runtimes>
 
           <DesktopFormFactor>
 
-            <!-- リボンボタン（手動で開く用） -->
-            <ExtensionPoint xsi:type="MessageComposeCommandSurface">
-              <OfficeTab id="TabDefault">
-                <Group id="FujilogiGrp">
-                  <Label resid="grpLabel"/>
-                  <Control xsi:type="Button" id="FujilogiBtn">
-                    <Label resid="btnLabel"/>
-                    <Supertip>
-                      <Title resid="btnLabel"/>
-                      <Description resid="btnDesc"/>
-                    </Supertip>
-                    <Icon>
-                      <bt:Image size="16" resid="icon16"/>
-                      <bt:Image size="32" resid="icon32"/>
-                      <bt:Image size="80" resid="icon80"/>
-                    </Icon>
-                    <Action xsi:type="ShowTaskpane">
-                      <SourceLocation resid="tpUrl"/>
-                    </Action>
-                  </Control>
-                </Group>
-              </OfficeTab>
-            </ExtensionPoint>
-
-            <!-- Smart Alerts: 送信時に自動起動 -->
             <ExtensionPoint xsi:type="LaunchEvent">
               <LaunchEvents>
                 <LaunchEvent Type="OnMessageSend"
@@ -111,16 +84,14 @@
           <bt:Image id="icon80" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/assets/icon-80.png"/>
         </bt:Images>
         <bt:Urls>
-          <bt:Url id="tpUrl" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/taskpane.html"/>
           <bt:Url id="launchEventHtml" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/launchevent.html"/>
           <bt:Url id="launchEventJs" DefaultValue="https://dnaiengiadgina.github.io/pre-send-check-addin/launchevent.js"/>
         </bt:Urls>
         <bt:ShortStrings>
           <bt:String id="grpLabel" DefaultValue="誤送信対策"/>
-          <bt:String id="btnLabel" DefaultValue="送信確認"/>
         </bt:ShortStrings>
         <bt:LongStrings>
-          <bt:String id="btnDesc" DefaultValue="メール送信前に宛先と添付ファイルを確認します。"/>
+          <bt:String id="grpDesc" DefaultValue="メール送信前に社外宛先と件名を自動チェックします。"/>
         </bt:LongStrings>
       </Resources>
 
