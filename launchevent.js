@@ -37,10 +37,14 @@ function onMessageSend(event) {
         !r.emailAddress.toLowerCase().endsWith('@' + DOMAIN);
     });
     if (extList.length > 0) {
-      var emails = extList.map(function(r) {
-        return r.emailAddress;
-      }).join(', ');
-      warnings.push('・社外への送信が含まれています:\n  ' + emails);
+      var lines = extList.map(function(r) {
+        // 表示名がある場合は「表示名 <メールアドレス>」形式で表示
+        if (r.displayName && r.displayName !== r.emailAddress) {
+          return '  ' + r.displayName + ' <' + r.emailAddress + '>';
+        }
+        return '  ' + r.emailAddress;
+      }).join('\n');
+      warnings.push('・社外への送信が含まれています:\n' + lines);
     }
 
     if (warnings.length > 0) {
