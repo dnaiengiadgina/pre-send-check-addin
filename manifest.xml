@@ -68,7 +68,7 @@
               <LaunchEvents>
                 <LaunchEvent Type="OnMessageSend"
                              FunctionName="onMessageSend"
-                             SendMode="PromptUser"/>
+                             SendMode="SoftBlock"/>
               </LaunchEvents>
               <SourceLocation resid="launchEventHtml"/>
             </ExtensionPoint>
