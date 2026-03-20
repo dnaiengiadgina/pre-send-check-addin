@@ -45,7 +45,7 @@ function onMessageSend(event) {
 
     if (warnings.length > 0) {
       var message =
-        '以下の点を確認してから送信してください。\n\n' +
+        '以下の内容を確認してから送信してください。\n\n' +
         warnings.join('\n\n');
 
       event.completed({
